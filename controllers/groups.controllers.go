@@ -70,6 +70,8 @@ func (g *GroupControllers) AddGroupMembers() gin.HandlerFunc {
 func (g *GroupControllers) GetGroupDetails() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		// groupId := c.Param("groupId")
+
 	}
 }
 
@@ -98,17 +100,21 @@ func (g *GroupControllers) AddExpenses() gin.HandlerFunc {
 				"error": err.Error(),
 			})
 		}
+		// send to rabbit mq as well to recalculate balance!
 	}
 }
 
 func (g *GroupControllers) GetExpenses() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		// groupId := c.Param("groupId")
 	}
 }
 
 func (g *GroupControllers) GetBalance() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		// groupId := c.Param("groupId")
 
 	}
 }
