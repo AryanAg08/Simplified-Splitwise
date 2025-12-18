@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/AryanAg08/Simplified-Splitwise/services"
 	"github.com/gin-gonic/gin"
 )
@@ -30,11 +32,37 @@ func (g *GroupControllers) InitGroupController(router *gin.Engine) {
 func (g *GroupControllers) CreateGroup() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		type Body struct {
+			Name    string   `json:"name" binding:"required"`
+			Members []string `json:"members"`
+		}
+
+		var body Body
+
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+
 	}
 }
 
 func (g *GroupControllers) AddGroupMembers() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// groupId := c.Param("groupId")
+
+		type Body struct {
+			Members []string `json:"members" binding:"required"`
+		}
+
+		var body Body
+
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
 
 	}
 }
@@ -54,6 +82,22 @@ func (g *GroupControllers) GetGroups() gin.HandlerFunc {
 func (g *GroupControllers) AddExpenses() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		// groupId := c.Param("groupId")
+
+		type Body struct {
+			Description  string   `json:"description" binding:"required"`
+			PaidBy       string   `json:"paidBy" binding:"required"`
+			Amount       float64  `json:"amount" binding:"required"`
+			SplitBetween []string `json:"splitBetween" binding:"required"`
+		}
+
+		var body Body
+
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
 	}
 }
 
