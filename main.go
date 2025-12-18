@@ -7,6 +7,7 @@ import (
 	"github.com/AryanAg08/Simplified-Splitwise/controllers"
 	"github.com/AryanAg08/Simplified-Splitwise/workers/cache"
 	"github.com/AryanAg08/Simplified-Splitwise/workers/db"
+	"github.com/AryanAg08/Simplified-Splitwise/workers/queue"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func main() {
 
 	db.ConnectMongo()
 	cache.ConnectRedis()
+	queue.ConnectRabbitMQ()
 
 	router := gin.Default()
 
