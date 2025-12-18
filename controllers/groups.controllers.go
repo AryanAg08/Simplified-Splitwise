@@ -1,8 +1,15 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/AryanAg08/Simplified-Splitwise/services"
+	"github.com/gin-gonic/gin"
+)
 
-type GroupControllers struct{}
+type GroupControllers struct {
+	balanceService  services.BalanceService
+	expensesService services.ExpensesSerive
+	groupService    services.GroupsService
+}
 
 func (g *GroupControllers) InitGroupController(router *gin.Engine) {
 	group := router.Group("/group")
