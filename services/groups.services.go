@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	// "log"
 	"time"
 
 	"github.com/AryanAg08/Simplified-Splitwise/models"
@@ -37,7 +36,6 @@ func (g *GroupsService) CreateGroupService(
 		return models.Groups{}, err
 	}
 
-	// 🔥 Assign MongoDB generated _id back to struct
 	group.ID = result.InsertedID.(primitive.ObjectID)
 
 	return group, nil
@@ -87,4 +85,44 @@ func (g *GroupsService) AddGroupMembers(
 	}
 
 	return updatedGroup, nil
+}
+
+func (g *GroupsService) GroupDetails(groupId string) (models.Groups, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	objID, errr := primitive.ObjectIDFromHex(groupId)
+
+	if errr != nil {
+		return models.Groups{}, errors.New("invalid group id")
+	}
+
+	var group models.Groups
+
+	err := db.GroupCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&group)
+
+	if err != nil {
+		return models.Groups{}, err
+	}
+
+	return group, nil
+}
+
+func (g *GroupsService) GetAllGroups() ([]models.Groups, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var groups []models.Groups
+
+	cursor, err := db.GroupCollection.Find(ctx, bson.M{})
+
+	if err != nil {
+		return []models.Groups{}, err
+	}
+
+	if err := cursor.All(ctx, &groups); err != nil {
+		return []models.Groups{}, err
+	}
+
+	return groups, nil
 }

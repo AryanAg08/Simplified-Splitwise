@@ -95,14 +95,38 @@ func (g *GroupControllers) AddGroupMembers() gin.HandlerFunc {
 func (g *GroupControllers) GetGroupDetails() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// groupId := c.Param("groupId")
+		groupId := c.Param("groupId")
 
+		group, err := g.groupService.GroupDetails(groupId)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": group,
+		})
 	}
 }
 
 func (g *GroupControllers) GetGroups() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		groups, err := g.groupService.GetAllGroups()
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": groups,
+		})
 	}
 }
 
