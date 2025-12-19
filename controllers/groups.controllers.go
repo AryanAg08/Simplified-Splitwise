@@ -133,7 +133,7 @@ func (g *GroupControllers) GetGroups() gin.HandlerFunc {
 func (g *GroupControllers) AddExpenses() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// groupId := c.Param("groupId")
+		groupId := c.Param("groupId")
 
 		type Body struct {
 			Description  string   `json:"description" binding:"required"`
@@ -149,7 +149,19 @@ func (g *GroupControllers) AddExpenses() gin.HandlerFunc {
 				"error": err.Error(),
 			})
 		}
-		// send to rabbit mq as well to recalculate balance!
+
+		expense, err := g.expensesService.AddExpensesService(body.Description, body.PaidBy, body.Amount, body.SplitBetween, groupId)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": expense,
+		})
 	}
 }
 
