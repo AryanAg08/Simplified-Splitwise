@@ -16,7 +16,7 @@ type GroupControllers struct {
 func (g *GroupControllers) InitGroupController(router *gin.Engine) {
 	group := router.Group("/group")
 
-	group.POST("/", g.CreateGroup())                     // create new Grp
+	group.POST("/", g.CreateGroup())                     // create new Grp //done!!
 	group.POST("/:groupId/members", g.AddGroupMembers()) // adding members
 	group.GET("/:groupId", g.GetGroupDetails())          // grp details
 	group.GET("/", g.GetGroups())                        // All Groups
@@ -45,12 +45,25 @@ func (g *GroupControllers) CreateGroup() gin.HandlerFunc {
 			})
 		}
 
+		group, err := g.groupService.CreateGroupService(body.Name, body.Members)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
+
+		c.JSON(http.StatusAccepted, gin.H{
+			"data": group,
+		})
+
 	}
 }
 
 func (g *GroupControllers) AddGroupMembers() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// groupId := c.Param("groupId")
+
+		groupId := c.Param("groupId")
 
 		type Body struct {
 			Members []string `json:"members" binding:"required"`
@@ -62,8 +75,20 @@ func (g *GroupControllers) AddGroupMembers() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 
+		group, err := g.groupService.AddGroupMembers(groupId, body.Members)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusAccepted, gin.H{
+			"data": group,
+		})
 	}
 }
 
