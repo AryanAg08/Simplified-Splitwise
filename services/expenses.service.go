@@ -7,6 +7,8 @@ import (
 
 	"github.com/AryanAg08/Simplified-Splitwise/models"
 	"github.com/AryanAg08/Simplified-Splitwise/workers/db"
+	"github.com/AryanAg08/Simplified-Splitwise/workers/queue"
+	"github.com/rabbitmq/amqp091-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -67,7 +69,24 @@ func (e *ExpensesSerive) AddExpensesService(description string,
 	}
 
 	expense.ID = result.InsertedID.(primitive.ObjectID)
-	// Remaing‼️‼️ send Message to Rabbit MQ to recalculate balance!!
+
+	// send Message to Rabbit MQ to recalculate balance!!
+
+	body := []byte(`{
+		"groupId": "` + groupId + `",
+		"expenseId": "` + expense.ID.Hex() + `"
+	}`)
+
+	queue.Channel.Publish(
+		"",
+		"expense_added",
+		false,
+		false,
+		amqp091.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
 
 	return expense, nil
 }

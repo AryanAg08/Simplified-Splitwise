@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-
 	"time"
 
 	"github.com/AryanAg08/Simplified-Splitwise/models"
@@ -37,6 +36,11 @@ func (g *GroupsService) CreateGroupService(
 	}
 
 	group.ID = result.InsertedID.(primitive.ObjectID)
+
+	_, balanceError := InitBalance(group.ID.Hex(), members)
+	if balanceError != nil {
+		return models.Groups{}, balanceError
+	}
 
 	return group, nil
 }
@@ -84,6 +88,11 @@ func (g *GroupsService) AddGroupMembers(
 		return models.Groups{}, err
 	}
 
+	balanceError := AddMembersToBalance(groupId, members)
+	if balanceError != nil {
+		return models.Groups{}, balanceError
+	}
+
 	return updatedGroup, nil
 }
 
@@ -125,4 +134,66 @@ func (g *GroupsService) GetAllGroups() ([]models.Groups, error) {
 	}
 
 	return groups, nil
+}
+
+func InitBalance(groupID string, members []string) (bool, error) {
+	if len(members) == 0 {
+		return false, errors.New("no members found")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	balances := make(map[string]float64)
+	for _, m := range members {
+		balances[m] = 0
+	}
+
+	balanceGroup := models.Balance{
+		GroupID:   groupID,
+		Balances:  balances,
+		UpdatedAt: time.Now(),
+	}
+
+	_, err := db.BalanceCollection.InsertOne(ctx, balanceGroup)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func AddMembersToBalance(groupID string, members []string) error {
+	if len(members) == 0 {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	setFields := bson.M{}
+	for _, m := range members {
+		setFields["balances."+m] = 0
+	}
+
+	setFields["updatedAt"] = time.Now()
+
+	update := bson.M{
+		"$set": setFields,
+	}
+
+	res, err := db.BalanceCollection.UpdateOne(
+		ctx,
+		bson.M{"groupId": groupID},
+		update,
+	)
+	if err != nil {
+		return err
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.New("balance document not found for group")
+	}
+
+	return nil
 }
