@@ -168,7 +168,20 @@ func (g *GroupControllers) AddExpenses() gin.HandlerFunc {
 func (g *GroupControllers) GetExpenses() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// groupId := c.Param("groupId")
+		groupId := c.Param("groupId")
+
+		expenses, err := g.expensesService.GetAllExpensesService(groupId)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": expenses,
+		})
 	}
 }
 

@@ -91,6 +91,26 @@ func (e *ExpensesSerive) AddExpensesService(description string,
 	return expense, nil
 }
 
+func (e *ExpensesSerive) GetAllExpensesService(groupId string) ([]models.Expense, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var expenses []models.Expense
+
+	cursor, err := db.ExpenseCollection.Find(ctx, bson.M{"GroupID": groupId})
+
+	if err != nil {
+		return []models.Expense{}, err
+	}
+
+	if err := cursor.All(ctx, &expenses); err != nil {
+		return []models.Expense{}, err
+	}
+
+	return expenses, nil
+
+}
+
 func contains(arr []string, target string) bool {
 	for _, v := range arr {
 		if v == target {
