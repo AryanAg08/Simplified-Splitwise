@@ -188,7 +188,19 @@ func (g *GroupControllers) GetExpenses() gin.HandlerFunc {
 func (g *GroupControllers) GetBalance() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// groupId := c.Param("groupId")
+		groupId := c.Param("groupId")
 
+		balance, err := g.balanceService.GetGroupBalance(groupId)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err,
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"balance": balance,
+		})
 	}
 }
