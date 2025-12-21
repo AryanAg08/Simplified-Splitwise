@@ -7,7 +7,7 @@ import (
 )
 
 type Expense struct {
-	ID           primitive.ObjectID `bson:"_id" json:"id"`
+	ID           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	GroupID      string             `bson:"groupId" json:"groupId"`
 	Description  string             `bson:"description" json:"description"`
 	PaidBy       string             `bson:"paidBy" json:"paidBy"`
