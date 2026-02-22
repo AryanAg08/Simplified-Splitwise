@@ -12,6 +12,7 @@ PROJECT_NAME=$(basename "$PROJECT_ROOT")
 BINARY_NAME="$PROJECT_NAME"
 
 echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}Building $PROJECT_NAME${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Validate main.go exists
